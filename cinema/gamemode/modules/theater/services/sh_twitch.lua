@@ -4,22 +4,17 @@ SERVICE.Name 		= "Twitch.TV"
 SERVICE.IsTimed 	= true
 
 function SERVICE:Match( url )
-	return string.match(url.host, "twitch.tv") and
+	return string.match(url.host or "", "twitch.tv") and
 		string.match(url.path, "^/[%w_]+/%a/(%d+)")
 end
 
 function SERVICE:GetURLInfo( url )
-
 	local info = {}
 	info.Data = string.match(url.path, "^/[%w_]+/%a/(%d+)")
 
-	-- Chapter videos use /c/ while archived videos use /b/
+	-- Chapter videos use /c/, archived videos use /b/, VODs use /v/
 	local letter = string.match(url.path, "^/[%w_]+/(%a)/%d+")
-	if letter == "c" then
-		info.Data = "c" .. info.Data
-	else
-		info.Data = "b" .. info.Data
-	end
+	info.Data = letter .. info.Data
 
 	-- Start time
 	if url.query and url.query.t then
@@ -30,7 +25,6 @@ function SERVICE:GetURLInfo( url )
 	end
 
 	return info
-
 end
 
 function SERVICE:GetVideoInfo( data, onSuccess, onFailure )
@@ -94,7 +88,7 @@ SERVICE.IsTimed 		= false
 SERVICE.TheaterType 	= THEATER_PRIVATE
 
 function SERVICE:Match( url )
-	return string.match( url.host, "twitch.tv" )
+	return string.match( url.host or "", "twitch.tv" )
 end
 
 function SERVICE:GetURLInfo( url )
